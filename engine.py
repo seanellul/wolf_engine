@@ -40,14 +40,16 @@ class Engine:
         self.scene = Scene(self)
 
     def update_npc_map(self):
-        new_npc_map = {}
+        dead_npcs = []
+        self.level_map.npc_map.clear()
         for npc in self.level_map.npc_list:
             if npc.is_alive:
-                new_npc_map[npc.tile_pos] = npc
+                self.level_map.npc_map[npc.tile_pos] = npc
             else:
-                self.level_map.npc_list.remove(npc)
+                dead_npcs.append(npc)
         #
-        self.level_map.npc_map = new_npc_map
+        for npc in dead_npcs:
+            self.level_map.npc_list.remove(npc)
 
     def handle_events(self, event):
         self.player.handle_events(event=event)

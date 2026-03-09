@@ -39,10 +39,11 @@ class Game:
         pg.time.set_timer(self.sound_event, 750)
 
     def update(self):
-        self.engine.update()
-        #
         self.delta_time = self.clock.tick()
         self.time = pg.time.get_ticks() * 0.001
+        #
+        self.engine.update()
+        #
         self.fps_value = int(self.clock.get_fps())
         pg.display.set_caption(f'{self.fps_value}')
 
