@@ -1,5 +1,5 @@
 from wolf_engine.raycasting import RayCaster
-from engine_config import MAX_RAY_DIST
+from wolf_engine.config import MAX_RAY_DIST
 
 
 class RayCasting:

@@ -1,5 +1,5 @@
 from itertools import cycle
-from camera import Camera
+from wolf_engine.camera import Camera
 from wolf_engine.collision import CollisionResolver
 from settings import *
 import random

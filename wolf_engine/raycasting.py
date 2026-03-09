@@ -8,7 +8,7 @@ blocking/target logic.
 import glm
 from dataclasses import dataclass
 from typing import Callable, Optional, Set, Tuple
-from engine_config import MAX_RAY_DIST
+from wolf_engine.config import MAX_RAY_DIST
 
 
 @dataclass

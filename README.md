@@ -6,64 +6,49 @@ Forked from [StanislavPetrovV's Wolfenstein 3D clone](https://github.com/Stanisl
 
 ![wolfenstein](/screenshot/0.jpg)
 
-## What's Here
+## Project Structure
 
-The codebase is mid-extraction. The reference game (the original Wolfenstein clone) is fully playable while we refactor the internals into clean engine vs game layers.
-
-### Current Architecture
+The codebase is split into two packages with a clear boundary:
 
 ```
-engine_config.py        Engine constants (resolution, FOV, GL params, input, timers)
-game_data.py            Game-specific data (weapons, NPCs, items, HUD layout)
-settings.py             Re-export shim (so existing code keeps working during refactor)
-texture_id.py           Texture ID registry
+wolf_engine/        Engine (reusable across games)
+  config.py           Engine constants (resolution, FOV, GL, input, timers)
+  camera.py           First-person camera math
+  entity.py           Base Entity (pos, rot, scale, model matrix, lifecycle)
+  world.py            Entity registry with spatial indexing
+  collision.py        AABB collision with pluggable blockers
+  raycasting.py       DDA raycaster with callback-based blocking/targets
+  pathfinding.py      BFS grid pathfinder with dynamic blockers
+  rendering/          OpenGL pipeline (shaders, meshes, textures)
 
-main.py                 App shell, GL context, game loop
-engine.py               System orchestrator, level lifecycle
-camera.py               Camera math (position, orientation, view/projection matrices)
-player.py               Player controller + combat + interaction
-level_map.py            TMX level loader + entity spawning
-ray_casting.py          DDA raycaster (line-of-sight, shooting)
-path_finding.py         BFS grid pathfinder with LRU cache
-scene.py                Render order manager
-shader_program.py       GLSL shader loader + uniform management
-textures.py             Texture array GPU upload
-texture_builder.py      Texture atlas builder from PNGs
-sound.py                Audio system (channel-based)
+game/               Game code (swap this to make a different game)
+  engine.py           Game orchestrator and level lifecycle
+  player.py           Player combat, inventory, interaction
+  scene.py            Render order manager
+  level_map.py        TMX level loader and entity spawning
+  ray_casting.py      Game-specific raycasting rules
+  path_finding.py     Game-specific pathfinding rules
+  sound.py            Audio catalogue
+  data.py             Weapon, NPC, item, HUD definitions
+  texture_id.py       Texture ID registry
+  entities/           NPC, Door, Item, Weapon, HUD
 
-wolf_engine/            Engine core package:
-  entity.py               Base Entity class (pos, rot, scale, model matrix, lifecycle)
-  world.py                Entity registry with spatial indexing and group management
-  collision.py            Axis-separated AABB collision with pluggable blockers
-  raycasting.py           DDA voxel raycaster with callback-based blocking/targets
-  pathfinding.py          BFS grid pathfinder with cache invalidation
-
-meshes/                 Mesh builders (level geometry, instanced quads, weapon)
-shaders/                GLSL 330 shaders (level, billboard, door, HUD, weapon)
-game_objects/           Game entity classes (NPC, Door, Item, Weapon, HUD)
-resources/levels/       Tiled TMX map files
-assets/                 Textures, sounds, music
+main.py             Entry point
+settings.py         Re-export shim (backward compat)
+assets/             Textures, sounds, music
+resources/          Tiled .tmx level files
 ```
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the full breakdown of the engine/game boundary, design patterns, and how to build a new game on the engine.
+
+See [ENGINE_EXTRACTION_SCRUTINY.md](ENGINE_EXTRACTION_SCRUTINY.md) for the original analysis and extraction plan.
 
 ### Extraction Progress
 
-See [ENGINE_EXTRACTION_SCRUTINY.md](ENGINE_EXTRACTION_SCRUTINY.md) for the full plan.
-
 - **Phase 1: Critical bug fixes** -- Done
-  - Fixed VAO-per-frame rebuild in instanced rendering (pre-allocated persistent VBOs)
-  - Fixed delta_time ordering (measured before update, not after)
-  - Fixed NPC list mutation during iteration + dict reassignment breaking views
 - **Phase 2: Settings split** -- Done
-  - `engine_config.py` -- engine constants (swap these to change engine behavior)
-  - `game_data.py` -- game definitions (swap these to make a different game)
-  - `settings.py` -- backward-compatible shim
 - **Phase 3: Engine core extraction** -- Done
-  - `wolf_engine/entity.py` -- Base Entity with pos, rot, scale, model matrix, lifecycle hooks
-  - `wolf_engine/world.py` -- Unified entity registry with spatial indexing and group management
-  - `wolf_engine/collision.py` -- Axis-separated AABB with pluggable blocker callbacks
-  - `wolf_engine/raycasting.py` -- DDA raycaster with callback-based blocking and target detection
-  - `wolf_engine/pathfinding.py` -- BFS grid pathfinder with dynamic blockers and cache invalidation
-  - Game objects (`GameObject`, `NPC`, `Player`) now use engine systems
+- **Phase 3.5: Repo reorganization** -- Done
 - **Phase 4: Rendering pipeline** -- Next
 - **Phase 5: Infrastructure** -- Planned
 - **Phase 6: Reference game rebuild** -- Planned

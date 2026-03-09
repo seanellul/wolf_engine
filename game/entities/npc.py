@@ -1,7 +1,7 @@
 from settings import *
 import random
-from game_objects.game_object import GameObject
-from game_objects.item import Item
+from game.entities.game_object import GameObject
+from game.entities.item import Item
 from wolf_engine.collision import CollisionResolver
 
 

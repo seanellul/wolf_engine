@@ -2,7 +2,7 @@ import math
 import pathlib
 import re
 import pygame as pg
-from engine_config import TEX_SIZE
+from wolf_engine.config import TEX_SIZE
 
 
 class TextureArrayBuilder:

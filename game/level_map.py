@@ -1,8 +1,8 @@
 import pytmx
 from settings import *
-from game_objects.door import Door
-from game_objects.item import Item
-from game_objects.npc import NPC
+from game.entities.door import Door
+from game.entities.item import Item
+from game.entities.npc import NPC
 
 
 class LevelMap:

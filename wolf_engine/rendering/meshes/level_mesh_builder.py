@@ -1,4 +1,4 @@
-from settings import *
+from wolf_engine.config import *
 import numpy as np
 
 

@@ -1,5 +1,5 @@
 from settings import *
-from game_objects.game_object import GameObject
+from game.entities.game_object import GameObject
 
 
 class Door(GameObject):

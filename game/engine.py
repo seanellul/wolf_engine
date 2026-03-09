@@ -1,11 +1,11 @@
-from player import Player, PlayerAttribs
-from scene import Scene
-from shader_program import ShaderProgram
-from path_finding import PathFinder
-from ray_casting import RayCasting
-from level_map import LevelMap
-from textures import Textures
-from sound import Sound
+from game.player import Player, PlayerAttribs
+from game.scene import Scene
+from wolf_engine.rendering.shader_program import ShaderProgram
+from game.path_finding import PathFinder
+from game.ray_casting import RayCasting
+from game.level_map import LevelMap
+from wolf_engine.rendering.texture_manager import Textures
+from game.sound import Sound
 import pygame as pg
 
 

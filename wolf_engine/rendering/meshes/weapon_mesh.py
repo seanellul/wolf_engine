@@ -1,4 +1,4 @@
-from meshes.quad_mesh import QuadMesh
+from wolf_engine.rendering.meshes.quad_mesh import QuadMesh
 
 
 class WeaponMesh(QuadMesh):

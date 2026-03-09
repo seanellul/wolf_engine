@@ -1,6 +1,4 @@
-from game_objects.game_object import GameObject
-from meshes.quad_mesh import QuadMesh
-from typing import Iterable, Any
+from wolf_engine.rendering.meshes.quad_mesh import QuadMesh
 import moderngl as mgl
 import numpy as np
 
@@ -8,7 +6,7 @@ import numpy as np
 class InstancedQuadMesh:
     MAX_INSTANCES = 256
 
-    def __init__(self, eng, objects: Iterable[GameObject], shader_program: mgl.Program):
+    def __init__(self, eng, objects, shader_program: mgl.Program):
         self.ctx = eng.app.ctx
         self.program = shader_program
         #

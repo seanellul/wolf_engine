@@ -1,6 +1,6 @@
 import moderngl as mgl
-from settings import *
-from texture_builder import TextureArrayBuilder
+from wolf_engine.config import *
+from wolf_engine.rendering.texture_builder import TextureArrayBuilder
 
 
 class Textures:

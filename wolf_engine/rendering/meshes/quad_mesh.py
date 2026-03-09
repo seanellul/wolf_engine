@@ -1,5 +1,5 @@
-from meshes.base_mesh import BaseMesh
-from settings import *
+from wolf_engine.rendering.meshes.base_mesh import BaseMesh
+import numpy as np
 import numpy as np
 
 

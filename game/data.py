@@ -1,5 +1,5 @@
 import glm
-from texture_id import ID
+from game.texture_id import ID
 
 # number of textures
 NUM_TEXTURES = len(ID)

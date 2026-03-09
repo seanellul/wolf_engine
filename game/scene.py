@@ -1,8 +1,8 @@
-from meshes.level_mesh import LevelMesh
-from meshes.instanced_quad_mesh import InstancedQuadMesh
-from game_objects.hud import HUD
-from game_objects.weapon import Weapon
-from meshes.weapon_mesh import WeaponMesh
+from wolf_engine.rendering.meshes.level_mesh import LevelMesh
+from wolf_engine.rendering.meshes.instanced_quad_mesh import InstancedQuadMesh
+from game.entities.hud import HUD
+from game.entities.weapon import Weapon
+from wolf_engine.rendering.meshes.weapon_mesh import WeaponMesh
 
 
 class Scene:

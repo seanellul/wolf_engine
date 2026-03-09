@@ -1,6 +1,6 @@
 import pygame as pg
-from texture_id import *
-from engine_config import MAX_SOUND_CHANNELS
+from game.texture_id import *
+from wolf_engine.config import MAX_SOUND_CHANNELS
 
 
 class Sound:

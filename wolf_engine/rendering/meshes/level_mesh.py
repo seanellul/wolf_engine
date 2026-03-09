@@ -1,4 +1,4 @@
-from meshes.level_mesh_builder import LevelMeshBuilder
+from wolf_engine.rendering.meshes.level_mesh_builder import LevelMeshBuilder
 
 
 class LevelMesh:

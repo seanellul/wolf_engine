@@ -5,7 +5,7 @@ Game-specific entities (NPCs, doors, items, weapons) inherit from this
 and override update() / on_spawn() / on_destroy() as needed.
 """
 import glm
-from engine_config import H_WALL_SIZE
+from wolf_engine.config import H_WALL_SIZE
 
 
 class Entity:
