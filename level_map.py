@@ -77,3 +77,4 @@ class LevelMap:
         self.eng.player.wall_map = self.wall_map
         self.eng.player.door_map = self.door_map
         self.eng.player.item_map = self.item_map
+        self.eng.player.setup_collision()

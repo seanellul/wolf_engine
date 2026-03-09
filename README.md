@@ -31,9 +31,16 @@ textures.py             Texture array GPU upload
 texture_builder.py      Texture atlas builder from PNGs
 sound.py                Audio system (channel-based)
 
+wolf_engine/            Engine core package:
+  entity.py               Base Entity class (pos, rot, scale, model matrix, lifecycle)
+  world.py                Entity registry with spatial indexing and group management
+  collision.py            Axis-separated AABB collision with pluggable blockers
+  raycasting.py           DDA voxel raycaster with callback-based blocking/targets
+  pathfinding.py          BFS grid pathfinder with cache invalidation
+
 meshes/                 Mesh builders (level geometry, instanced quads, weapon)
 shaders/                GLSL 330 shaders (level, billboard, door, HUD, weapon)
-game_objects/           Entity classes (NPC, Door, Item, Weapon, HUD)
+game_objects/           Game entity classes (NPC, Door, Item, Weapon, HUD)
 resources/levels/       Tiled TMX map files
 assets/                 Textures, sounds, music
 ```
@@ -50,8 +57,14 @@ See [ENGINE_EXTRACTION_SCRUTINY.md](ENGINE_EXTRACTION_SCRUTINY.md) for the full 
   - `engine_config.py` -- engine constants (swap these to change engine behavior)
   - `game_data.py` -- game definitions (swap these to make a different game)
   - `settings.py` -- backward-compatible shim
-- **Phase 3: Engine core extraction** -- Next
-- **Phase 4: Rendering pipeline** -- Planned
+- **Phase 3: Engine core extraction** -- Done
+  - `wolf_engine/entity.py` -- Base Entity with pos, rot, scale, model matrix, lifecycle hooks
+  - `wolf_engine/world.py` -- Unified entity registry with spatial indexing and group management
+  - `wolf_engine/collision.py` -- Axis-separated AABB with pluggable blocker callbacks
+  - `wolf_engine/raycasting.py` -- DDA raycaster with callback-based blocking and target detection
+  - `wolf_engine/pathfinding.py` -- BFS grid pathfinder with dynamic blockers and cache invalidation
+  - Game objects (`GameObject`, `NPC`, `Player`) now use engine systems
+- **Phase 4: Rendering pipeline** -- Next
 - **Phase 5: Infrastructure** -- Planned
 - **Phase 6: Reference game rebuild** -- Planned
 

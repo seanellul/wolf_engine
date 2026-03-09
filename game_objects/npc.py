@@ -2,6 +2,7 @@ from settings import *
 import random
 from game_objects.game_object import GameObject
 from game_objects.item import Item
+from wolf_engine.collision import CollisionResolver
 
 
 class NPC(GameObject):
@@ -36,6 +37,12 @@ class NPC(GameObject):
         #
         self.is_alive = True
         self.is_hurt = False
+        #
+        self.collision = CollisionResolver(radius=self.size)
+        self.collision.add_blocker(lambda pos: pos in self.level_map.wall_map)
+        self.collision.add_blocker(
+            lambda pos: pos in (self.level_map.npc_map.keys() - {self.tile_pos})
+        )
         #
         self.play = self.eng.sound.play
         self.sound = self.eng.sound
@@ -111,10 +118,9 @@ class NPC(GameObject):
         delta_vec = dir_vec * self.speed * self.app.delta_time
 
         # collisions
-        if not self.is_collide(dx=delta_vec[0]):
-            self.pos.x += delta_vec[0]
-        if not self.is_collide(dz=delta_vec[1]):
-            self.pos.z += delta_vec[1]
+        new_x, new_z = self.collision.resolve(self.pos, delta_vec[0], delta_vec[1])
+        self.pos.x = new_x
+        self.pos.z = new_z
 
         # open door
         door_map = self.level_map.door_map
@@ -127,14 +133,6 @@ class NPC(GameObject):
 
         # translate
         self.m_model = self.get_model_matrix()
-
-    def is_collide(self, dx=0, dz=0):
-        int_pos = (
-            int(self.pos.x + dx + (self.size if dx > 0 else -self.size if dx < 0 else 0)),
-            int(self.pos.z + dz + (self.size if dz > 0 else -self.size if dz < 0 else 0))
-        )
-        return (int_pos in self.level_map.wall_map or
-                int_pos in (self.level_map.npc_map.keys() - {self.tile_pos}))
 
     def update_tile_position(self):
         self.tile_pos = int(self.pos.x), int(self.pos.z)

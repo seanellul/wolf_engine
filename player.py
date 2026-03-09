@@ -1,5 +1,6 @@
 from itertools import cycle
 from camera import Camera
+from wolf_engine.collision import CollisionResolver
 from settings import *
 import random
 
@@ -29,6 +30,9 @@ class Player(Camera):
 
         # these maps will update when instantiated LevelMap
         self.door_map, self.wall_map, self.item_map = None, None, None
+
+        # collision resolver (blockers added after LevelMap sets wall_map/door_map)
+        self.collision = CollisionResolver(radius=PLAYER_SIZE)
 
         # attribs
         self.health = self.eng.player_attribs.health
@@ -204,23 +208,14 @@ class Player(Camera):
         self.move(next_step=next_step)
 
     def move(self, next_step):
-        if not self.is_collide(dx=next_step[0]):
-            self.position.x += next_step[0]
+        new_x, new_z = self.collision.resolve(self.position, next_step[0], next_step[1])
+        self.position.x = new_x
+        self.position.z = new_z
 
-        if not self.is_collide(dz=next_step[1]):
-            self.position.z += next_step[1]
-
-    def is_collide(self, dx=0, dz=0):
-        int_pos = (
-            int(self.position.x + dx + (
-                PLAYER_SIZE if dx > 0 else -PLAYER_SIZE if dx < 0 else 0)
-                ),
-            int(self.position.z + dz + (
-                PLAYER_SIZE if dz > 0 else -PLAYER_SIZE if dz < 0 else 0)
-                )
+    def setup_collision(self):
+        """Configure collision blockers. Called after LevelMap sets maps."""
+        self.collision.clear_blockers()
+        self.collision.add_blocker(lambda pos: pos in self.wall_map)
+        self.collision.add_blocker(
+            lambda pos: pos in self.door_map and self.door_map[pos].is_closed
         )
-        # check doors
-        if int_pos in self.door_map:
-            return self.door_map[int_pos].is_closed
-        # check walls
-        return int_pos in self.wall_map
