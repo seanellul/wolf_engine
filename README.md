@@ -54,8 +54,12 @@ See [ENGINE_EXTRACTION_SCRUTINY.md](ENGINE_EXTRACTION_SCRUTINY.md) for the origi
   - `ShaderManager` with data-driven loading and `#include` resolution
   - Shared shader snippets (`fog.glsl`, `gamma.glsl`) eliminating duplication
   - `TextureArrayBuilder` with mtime-based caching (skips rebuild when unchanged)
-- **Phase 5: Infrastructure** -- Next
-- **Phase 6: Reference game rebuild** -- Planned
+- **Phase 5: Infrastructure** -- Done
+  - `App` with game state stack (push/pop/replace states for menu → playing → paused)
+  - `AudioManager` with manifest-driven loading, round-robin channels, positional audio
+  - `InputManager` with action-based key bindings (decouples game logic from key codes)
+  - `TMXLoader` returning raw `LevelData` without entity spawning
+- **Phase 6: Reference game rebuild** -- Next
 
 ## Tech Stack
 

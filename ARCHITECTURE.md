@@ -4,7 +4,8 @@
 
 ```
 wolf_engine/                        Reusable engine (copy to start a new game)
-├── __init__.py                       Public API: Entity, World, CollisionResolver, RayCaster, GridPathfinder, RenderScene, ShaderManager
+├── __init__.py                       Public API: App, GameState, Entity, World, CollisionResolver, RayCaster, GridPathfinder, AudioManager, InputManager, TMXLoader, RenderScene, ShaderManager
+├── app.py                            App shell with GL context, main loop, and game state stack
 ├── config.py                         Engine constants (resolution, FOV, GL params, input keys, timers)
 ├── camera.py                         Camera math (position, orientation, view/projection matrices)
 ├── entity.py                         Base Entity class (pos, rot, scale, model matrix, lifecycle hooks)
@@ -12,6 +13,9 @@ wolf_engine/                        Reusable engine (copy to start a new game)
 ├── collision.py                      Axis-separated AABB collision with pluggable blockers
 ├── raycasting.py                     DDA voxel raycaster with callback-based blocking/targets
 ├── pathfinding.py                    BFS grid pathfinder with dynamic blockers and cache
+├── audio.py                          Manifest-driven sound loading, positional audio, music playback
+├── input.py                          Action-based input mapping (decouples game logic from key codes)
+├── tmx_loader.py                     TMX parsing → LevelData (no entity spawning)
 └── rendering/
     ├── __init__.py
     ├── render_scene.py               Named render layers (RenderScene, RenderLayer)
@@ -69,12 +73,16 @@ The split follows one rule: **if it defines behavior, it's game code. If it prov
 
 | Module | Capability |
 |--------|-----------|
+| `app.py` | Game loop shell with GL context, timing, and game state stack (push/pop/replace) |
 | `camera.py` | First-person camera with position, orientation, and projection matrices |
 | `entity.py` | Base object with position, rotation, scale, model matrix, and lifecycle hooks |
 | `world.py` | Entity storage with named groups, spatial indexing by tile, and deferred destruction |
 | `collision.py` | Movement resolution against arbitrary blocking rules (plug in your own blockers) |
 | `raycasting.py` | Line-of-sight and hit detection (plug in your own blocking and target rules) |
 | `pathfinding.py` | Grid navigation (plug in your own walkability rules and dynamic obstacles) |
+| `audio.py` | Manifest-driven sound loading, round-robin channels, positional audio, music |
+| `input.py` | Action-based key bindings, decoupling game logic from specific key constants |
+| `tmx_loader.py` | TMX parsing into raw `LevelData` (tile grids + object spawn points, no entities) |
 | `rendering/` | OpenGL 3.3 pipeline: texture arrays, instanced billboards, level mesh with AO, shaders |
 
 ### What the game defines
@@ -179,6 +187,87 @@ Use `#include "include/fog.glsl"` in any shader to inline them.
 
 `TextureArrayBuilder` compares source file mtimes against the cached atlas.
 It only rebuilds when textures have changed, skipping the build on subsequent launches.
+
+### Game state stack
+
+`App` manages a stack of `GameState` objects. The top state receives all events, updates, and renders. Games push/pop states for flow control:
+
+```python
+from wolf_engine.app import App, GameState
+
+class PlayingState(GameState):
+    def enter(self):
+        # set up level, player, etc.
+    def handle_event(self, event):
+        if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
+            self.app.push_state(PausedState())
+    def update(self):
+        # game logic
+    def render(self):
+        # draw scene
+
+app = App()
+app.push_state(PlayingState())
+app.run()
+```
+
+### Audio management
+
+`AudioManager` loads sounds from a manifest and plays them with round-robin channel assignment. Supports positional audio with distance-based volume falloff:
+
+```python
+from wolf_engine.audio import AudioManager
+
+audio = AudioManager(num_channels=10)
+audio.load_manifest({
+    'gunshot': {'path': 'gunshot.wav', 'volume': 0.8},
+    'footstep': 'footstep.ogg',  # shorthand, volume defaults to 0.5
+}, base_path='assets/sounds/')
+
+audio.play('gunshot')
+audio.play_positional('footstep', source_pos, listener_pos, max_dist=15.0)
+audio.play_music('assets/music/theme.ogg')
+```
+
+### Input mapping
+
+`InputManager` decouples game logic from specific key codes. Games define actions and bind them to keys:
+
+```python
+from wolf_engine.input import InputManager
+
+input_mgr = InputManager(bindings={
+    'move_forward': pg.K_w,
+    'shoot': pg.K_SPACE,
+})
+
+# In update:
+if input_mgr.is_pressed('move_forward'):
+    player.move_forward()
+
+# In event handling:
+if input_mgr.is_action_event(event, 'shoot'):
+    player.shoot()
+```
+
+### Level loading
+
+`TMXLoader` parses Tiled maps into raw `LevelData` without spawning entities. Games use the data to create their own entities:
+
+```python
+from wolf_engine.tmx_loader import TMXLoader
+
+loader = TMXLoader(base_path='resources/levels/')
+level_data = loader.load('level_0.tmx')
+
+# level_data.tile_maps['walls']  -> {(x, z): tex_id, ...}
+# level_data.objects['npc']      -> [ObjectData(pos, tex_id, properties), ...]
+# level_data.player_spawn        -> (x, y, z)
+
+# Game spawns its own entities from the raw data:
+for obj in level_data.objects['npc']:
+    world.spawn(MyNPC(obj.pos, obj.tex_id), group='npcs')
+```
 
 ### Settings shim
 
