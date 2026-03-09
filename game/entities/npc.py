@@ -30,8 +30,6 @@ class NPC(GameObject):
         self.num_frames, self.state_tex_id = None, None
         self.set_state(state='walk')
         #
-        self.tile_pos: Tuple[int, int] = None
-        #
         self.is_player_spotted: bool = False
         self.path_to_player: Tuple[int, int] = None
         #
@@ -48,14 +46,12 @@ class NPC(GameObject):
         self.sound = self.eng.sound
         #
         self.m_model = self.get_model_matrix()
-        self.update_tile_position()
 
     def update(self):
         if self.is_hurt:
             self.set_state(state='hurt')
         #
         elif self.health > 0:
-            self.update_tile_position()
             self.ray_to_player()
             self.get_path_to_player()
             #
@@ -134,8 +130,6 @@ class NPC(GameObject):
         # translate
         self.m_model = self.get_model_matrix()
 
-    def update_tile_position(self):
-        self.tile_pos = int(self.pos.x), int(self.pos.z)
 
     def ray_to_player(self):
         if self.is_player_spotted:
