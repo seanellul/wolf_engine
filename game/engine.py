@@ -6,7 +6,6 @@ from game.ray_casting import RayCasting
 from game.level_map import LevelMap
 from wolf_engine.rendering.texture_manager import Textures
 from game.sound import Sound
-import pygame as pg
 
 
 class Engine:
@@ -29,7 +28,6 @@ class Engine:
         self.new_game()
 
     def new_game(self):
-        pg.mixer.music.play(-1)
         self.player = Player(self)
         self.shader_program = ShaderProgram(self)
         self.level_map = LevelMap(

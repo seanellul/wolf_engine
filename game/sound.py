@@ -1,65 +1,52 @@
-import pygame as pg
+from wolf_engine.audio import AudioManager
 from game.texture_id import *
-from wolf_engine.config import MAX_SOUND_CHANNELS
 
 
-class Sound:
+class Sound(AudioManager):
+    """Game-specific sound catalogue built on the engine's AudioManager."""
+
     def __init__(self):
-        pg.mixer.init()
-        pg.mixer.set_num_channels(MAX_SOUND_CHANNELS)
-        self.channel = 0
+        super().__init__()
         self.path = 'assets/sounds/'
         #
         self.player_attack = {
-            ID.KNIFE_0: self.load('w_knife.ogg', volume=0.2),
-            ID.PISTOL_0: self.load('w_pistol.wav', volume=0.2),
-            ID.RIFLE_0: self.load('w_rifle.ogg', volume=0.2)
+            ID.KNIFE_0: self.load('player_attack_knife', self.path + 'w_knife.ogg', volume=0.2),
+            ID.PISTOL_0: self.load('player_attack_pistol', self.path + 'w_pistol.wav', volume=0.2),
+            ID.RIFLE_0: self.load('player_attack_rifle', self.path + 'w_rifle.ogg', volume=0.2),
         }
         #
-        self.player_hurt = self.load('p_hurt.ogg')
+        self.player_hurt = self.load('player_hurt', self.path + 'p_hurt.ogg')
         #
-        self.player_death = self.load('p_death.ogg')
+        self.player_death = self.load('player_death', self.path + 'p_death.ogg')
         #
-        self.player_missed = self.load('p_missed.wav')
+        self.player_missed = self.load('player_missed', self.path + 'p_missed.wav')
         #
-        self.open_door = self.load('p_open_door.wav', volume=1.0)
+        self.open_door = self.load('open_door', self.path + 'p_open_door.wav', volume=1.0)
         #
         self.pick_up = {
-            ID.AMMO: self.load('p_ammo.ogg'),
-            ID.MED_KIT: self.load('p_med_kit.mp3'),
-            ID.KEY: self.load('p_key.wav'),
+            ID.AMMO: self.load('pick_up_ammo', self.path + 'p_ammo.ogg'),
+            ID.MED_KIT: self.load('pick_up_med_kit', self.path + 'p_med_kit.mp3'),
+            ID.KEY: self.load('pick_up_key', self.path + 'p_key.wav'),
         }
         self.pick_up[ID.PISTOL_ICON] = self.pick_up[ID.AMMO]
         self.pick_up[ID.RIFLE_ICON] = self.pick_up[ID.AMMO]
         #
         self.enemy_attack = {
-            ID.SOLDIER_BLUE_0: self.load('n_soldier_attack.mp3', volume=0.8),
-            ID.SOLDIER_BROWN_0: self.load('n_soldier_attack.mp3', volume=0.8),
-            ID.RAT_0: self.load('n_rat_attack.ogg', volume=0.2),
+            ID.SOLDIER_BLUE_0: self.load('enemy_attack_soldier', self.path + 'n_soldier_attack.mp3', volume=0.8),
+            ID.SOLDIER_BROWN_0: self.load('enemy_attack_brown', self.path + 'n_soldier_attack.mp3', volume=0.8),
+            ID.RAT_0: self.load('enemy_attack_rat', self.path + 'n_rat_attack.ogg', volume=0.2),
         }
         #
         self.spotted = {
-            ID.SOLDIER_BLUE_0: self.load('n_soldier_spotted.ogg', volume=1.0),
-            ID.SOLDIER_BROWN_0: self.load('n_brown_spotted.ogg', volume=0.8),
-            ID.RAT_0: self.load('n_rat_spotted.ogg', volume=0.5),
+            ID.SOLDIER_BLUE_0: self.load('spotted_blue', self.path + 'n_soldier_spotted.ogg', volume=1.0),
+            ID.SOLDIER_BROWN_0: self.load('spotted_brown', self.path + 'n_brown_spotted.ogg', volume=0.8),
+            ID.RAT_0: self.load('spotted_rat', self.path + 'n_rat_spotted.ogg', volume=0.5),
         }
         #
         self.death = {
-            ID.SOLDIER_BLUE_0: self.load('n_blue_death.ogg', volume=0.8),
-            ID.SOLDIER_BROWN_0: self.load('n_brown_death.ogg', volume=0.8),
-            ID.RAT_0: self.load('no_sound.mp3', volume=0.0),
+            ID.SOLDIER_BLUE_0: self.load('death_blue', self.path + 'n_blue_death.ogg', volume=0.8),
+            ID.SOLDIER_BROWN_0: self.load('death_brown', self.path + 'n_brown_death.ogg', volume=0.8),
+            ID.RAT_0: self.load('death_rat', self.path + 'no_sound.mp3', volume=0.0),
         }
         #
-        pg.mixer.music.load(self.path + 'theme.ogg')
-        pg.mixer.music.set_volume(0.1)
-
-    def load(self, file_name, volume=0.5):
-        sound = pg.mixer.Sound(self.path + file_name)
-        sound.set_volume(volume)
-        return sound
-
-    def play(self, sound):
-        pg.mixer.Channel(self.channel).play(sound)
-        self.channel += 1
-        if self.channel == MAX_SOUND_CHANNELS:
-            self.channel = 0
+        self.play_music(self.path + 'theme.ogg')

@@ -1,6 +1,7 @@
 from itertools import cycle
 from wolf_engine.camera import Camera
 from wolf_engine.collision import CollisionResolver
+from wolf_engine.input import InputManager
 from settings import *
 import random
 
@@ -28,6 +29,12 @@ class Player(Camera):
         self.play = eng.sound.play
         super().__init__(position, yaw, pitch)
 
+        # Action-based input manager
+        self.input = InputManager(
+            bindings=KEYS,
+            mouse_sensitivity=MOUSE_SENSITIVITY,
+        )
+
         # these maps will update when instantiated LevelMap
         self.door_map, self.wall_map, self.item_map = None, None, None
 
@@ -52,15 +59,15 @@ class Player(Camera):
     def handle_events(self, event):
         if event.type == pg.KEYDOWN:
             # door interaction
-            if event.key == KEYS['INTERACT']:
+            if self.input.is_action_event(event, 'INTERACT'):
                 self.interact_with_door()
 
             # switch weapon by keys
-            if event.key == KEYS['WEAPON_1']:
+            if self.input.is_action_event(event, 'WEAPON_1'):
                 self.switch_weapon(weapon_id=ID.KNIFE_0)
-            elif event.key == KEYS['WEAPON_2']:
+            elif self.input.is_action_event(event, 'WEAPON_2'):
                 self.switch_weapon(weapon_id=ID.PISTOL_0)
-            elif event.key == KEYS['WEAPON_3']:
+            elif self.input.is_action_event(event, 'WEAPON_3'):
                 self.switch_weapon(weapon_id=ID.RIFLE_0)
 
         # weapon by mouse wheel
@@ -185,24 +192,24 @@ class Player(Camera):
             self.play(self.sound.open_door)
 
     def mouse_control(self):
-        mouse_dx, mouse_dy = pg.mouse.get_rel()
+        mouse_dx, mouse_dy = self.input.get_mouse_delta()
         if mouse_dx:
-            self.rotate_yaw(delta_x=mouse_dx * MOUSE_SENSITIVITY)
+            self.rotate_yaw(delta_x=mouse_dx)
         if mouse_dy:
-            self.rotate_pitch(delta_y=mouse_dy * MOUSE_SENSITIVITY)
+            self.rotate_pitch(delta_y=mouse_dy)
 
     def keyboard_control(self):
         key_state = pg.key.get_pressed()
         vel = PLAYER_SPEED * self.app.delta_time
         next_step = glm.vec2()
         #
-        if key_state[KEYS['FORWARD']]:
+        if self.input.is_pressed('FORWARD', key_state):
             next_step += self.move_forward(vel)
-        if key_state[KEYS['BACK']]:
+        if self.input.is_pressed('BACK', key_state):
             next_step += self.move_back(vel)
-        if key_state[KEYS['STRAFE_R']]:
+        if self.input.is_pressed('STRAFE_R', key_state):
             next_step += self.move_right(vel)
-        if key_state[KEYS['STRAFE_L']]:
+        if self.input.is_pressed('STRAFE_L', key_state):
             next_step += self.move_left(vel)
         #
         self.move(next_step=next_step)

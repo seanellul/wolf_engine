@@ -59,7 +59,11 @@ See [ENGINE_EXTRACTION_SCRUTINY.md](ENGINE_EXTRACTION_SCRUTINY.md) for the origi
   - `AudioManager` with manifest-driven loading, round-robin channels, positional audio
   - `InputManager` with action-based key bindings (decouples game logic from key codes)
   - `TMXLoader` returning raw `LevelData` without entity spawning
-- **Phase 6: Reference game rebuild** -- Next
+- **Phase 6: Reference game rebuild** -- Done
+  - `main.py` rebuilt on `App` + `GameState` (replaces hand-rolled game loop)
+  - `game/level_map.py` uses `TMXLoader` for raw parsing, keeps game entity spawning
+  - `game/sound.py` inherits from `AudioManager` (replaces manual mixer code)
+  - `game/player.py` uses `InputManager` for action-based input (decoupled from key codes)
 
 ## Tech Stack
 
