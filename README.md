@@ -49,8 +49,12 @@ See [ENGINE_EXTRACTION_SCRUTINY.md](ENGINE_EXTRACTION_SCRUTINY.md) for the origi
 - **Phase 2: Settings split** -- Done
 - **Phase 3: Engine core extraction** -- Done
 - **Phase 3.5: Repo reorganization** -- Done
-- **Phase 4: Rendering pipeline** -- Next
-- **Phase 5: Infrastructure** -- Planned
+- **Phase 4: Rendering pipeline** -- Done
+  - `RenderScene` with named layers replacing hardcoded render order
+  - `ShaderManager` with data-driven loading and `#include` resolution
+  - Shared shader snippets (`fog.glsl`, `gamma.glsl`) eliminating duplication
+  - `TextureArrayBuilder` with mtime-based caching (skips rebuild when unchanged)
+- **Phase 5: Infrastructure** -- Next
 - **Phase 6: Reference game rebuild** -- Planned
 
 ## Tech Stack

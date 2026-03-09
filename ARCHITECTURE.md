@@ -4,7 +4,7 @@
 
 ```
 wolf_engine/                        Reusable engine (copy to start a new game)
-├── __init__.py                       Public API: Entity, World, CollisionResolver, RayCaster, GridPathfinder
+├── __init__.py                       Public API: Entity, World, CollisionResolver, RayCaster, GridPathfinder, RenderScene, ShaderManager
 ├── config.py                         Engine constants (resolution, FOV, GL params, input keys, timers)
 ├── camera.py                         Camera math (position, orientation, view/projection matrices)
 ├── entity.py                         Base Entity class (pos, rot, scale, model matrix, lifecycle hooks)
@@ -14,9 +14,11 @@ wolf_engine/                        Reusable engine (copy to start a new game)
 ├── pathfinding.py                    BFS grid pathfinder with dynamic blockers and cache
 └── rendering/
     ├── __init__.py
-    ├── shader_program.py             GLSL shader loader and uniform management
-    ├── texture_manager.py            Texture array GPU upload
-    ├── texture_builder.py            Texture atlas builder from numbered PNGs
+    ├── render_scene.py               Named render layers (RenderScene, RenderLayer)
+    ├── shader_manager.py             Data-driven shader loading with #include resolution
+    ├── shader_program.py             Game-facing shader setup (uses ShaderManager)
+    ├── texture_manager.py            Texture array GPU upload with cache-aware building
+    ├── texture_builder.py            Texture atlas builder with mtime-based caching
     ├── meshes/
     │   ├── base_mesh.py              Abstract VAO/VBO base
     │   ├── quad_mesh.py              Billboard quad geometry
@@ -25,6 +27,9 @@ wolf_engine/                        Reusable engine (copy to start a new game)
     │   ├── level_mesh_builder.py     Level geometry generator with AO
     │   └── weapon_mesh.py            First-person weapon quad
     └── shaders/
+        ├── include/
+        │   ├── fog.glsl                    Shared exponential fog (apply_fog)
+        │   └── gamma.glsl                  Shared sRGB gamma (gamma_decode/gamma_encode)
         ├── level.vert / .frag              Level geometry (AO, face shading, fog)
         ├── instanced_billboard.vert / .frag  Camera-facing sprites (NPCs, items)
         ├── instanced_door.vert / .frag       Door rendering with rotation
@@ -128,6 +133,52 @@ world.spawn(entity, group='npcs')      # registers + calls on_spawn()
 world.destroy(entity, group='npcs')    # marks for removal
 world.flush()                          # actually removes + calls on_destroy()
 ```
+
+### Render layers
+
+The engine provides `RenderScene` — an ordered collection of named render layers.
+Games register layers in the order they should render, then add meshes to each:
+
+```python
+from wolf_engine.rendering.render_scene import RenderScene
+
+scene = RenderScene()
+scene.add_layer('level').add(level_mesh)
+scene.add_layer('doors').add(door_mesh)
+scene.add_layer('items').add(item_mesh)
+scene.add_layer('hud').add(hud_mesh)
+scene.add_layer('npcs').add(npc_mesh)
+scene.add_layer('weapon').add(weapon_mesh)
+
+# Each frame:
+scene.render_all()  # renders in registration order
+```
+
+### Shader management
+
+`ShaderManager` loads GLSL programs from files, with `#include` directive support:
+
+```python
+from wolf_engine.rendering.shader_manager import ShaderManager
+
+mgr = ShaderManager(ctx)
+mgr.load_manifest({
+    'level': 'level',
+    'billboard': 'instanced_billboard',
+})
+program = mgr['level']
+```
+
+Shared shader code lives in `wolf_engine/rendering/shaders/include/`:
+- `fog.glsl` — `apply_fog(color)` for exponential squared fog
+- `gamma.glsl` — `gamma_decode(color)` and `gamma_encode(color)` for sRGB
+
+Use `#include "include/fog.glsl"` in any shader to inline them.
+
+### Texture caching
+
+`TextureArrayBuilder` compares source file mtimes against the cached atlas.
+It only rebuilds when textures have changed, skipping the build on subsequent launches.
 
 ### Settings shim
 

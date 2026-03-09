@@ -1,5 +1,20 @@
-from wolf_engine.config import *
-import os
+"""
+ShaderProgram — game-facing shader setup.
+
+Uses ShaderManager for loading, but provides the same interface the
+game code expects (named program attributes, set_uniforms_on_init, update).
+"""
+from wolf_engine.config import TEXTURE_UNIT_0
+from wolf_engine.rendering.shader_manager import ShaderManager
+
+
+SHADER_MANIFEST = {
+    'level': 'level',
+    'instanced_door': 'instanced_door',
+    'instanced_billboard': 'instanced_billboard',
+    'instanced_hud': 'instanced_hud',
+    'weapon': 'weapon',
+}
 
 
 class ShaderProgram:
@@ -8,13 +23,16 @@ class ShaderProgram:
         self.ctx = eng.ctx
         self.player = eng.player
 
-        # -------- shaders -------- #
-        self.level = self.get_program(shader_name='level')
-        self.instanced_door = self.get_program(shader_name='instanced_door')
-        self.instanced_billboard = self.get_program(shader_name='instanced_billboard')
-        self.instanced_hud = self.get_program(shader_name='instanced_hud')
-        self.weapon = self.get_program(shader_name='weapon')
-        # ------------------------- #
+        self.manager = ShaderManager(eng.ctx)
+        self.manager.load_manifest(SHADER_MANIFEST)
+
+        # expose programs as attributes for backward compat
+        self.level = self.manager['level']
+        self.instanced_door = self.manager['instanced_door']
+        self.instanced_billboard = self.manager['instanced_billboard']
+        self.instanced_hud = self.manager['instanced_hud']
+        self.weapon = self.manager['weapon']
+
         self.set_uniforms_on_init()
 
     def set_uniforms_on_init(self):
@@ -40,14 +58,3 @@ class ShaderProgram:
         self.level['m_view'].write(self.player.m_view)
         self.instanced_door['m_view'].write(self.player.m_view)
         self.instanced_billboard['m_view'].write(self.player.m_view)
-
-    def get_program(self, shader_name):
-        shader_dir = os.path.join(os.path.dirname(__file__), 'shaders')
-        with open(os.path.join(shader_dir, f'{shader_name}.vert')) as file:
-            vertex_shader = file.read()
-
-        with open(os.path.join(shader_dir, f'{shader_name}.frag')) as file:
-            fragment_shader = file.read()
-
-        program = self.ctx.program(vertex_shader=vertex_shader, fragment_shader=fragment_shader)
-        return program
