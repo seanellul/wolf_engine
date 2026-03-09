@@ -1,6 +1,6 @@
 import pygame as pg
 from texture_id import *
-from settings import MAX_SOUND_CHANNELS
+from engine_config import MAX_SOUND_CHANNELS
 
 
 class Sound:

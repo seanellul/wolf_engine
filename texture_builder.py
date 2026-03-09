@@ -2,7 +2,7 @@ import math
 import pathlib
 import re
 import pygame as pg
-from settings import TEX_SIZE
+from engine_config import TEX_SIZE
 
 
 class TextureArrayBuilder:

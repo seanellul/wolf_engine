@@ -1,5 +1,5 @@
 import glm
-from settings import MAX_RAY_DIST
+from engine_config import MAX_RAY_DIST
 
 
 class RayCasting:

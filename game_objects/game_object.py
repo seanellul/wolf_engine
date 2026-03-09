@@ -1,5 +1,5 @@
 import glm
-from settings import H_WALL_SIZE
+from engine_config import H_WALL_SIZE
 
 
 class GameObject:
