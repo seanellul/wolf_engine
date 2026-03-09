@@ -16,6 +16,7 @@ wolf_engine/                        Reusable engine (copy to start a new game)
 ├── audio.py                          Manifest-driven sound loading, positional audio, music playback
 ├── input.py                          Action-based input mapping (decouples game logic from key codes)
 ├── tmx_loader.py                     TMX parsing → LevelData (no entity spawning)
+├── ui.py                             MenuRenderer (GL text/quads) + MenuState (navigable menu screens)
 └── rendering/
     ├── __init__.py
     ├── render_scene.py               Named render layers (RenderScene, RenderLayer)
@@ -83,6 +84,7 @@ The split follows one rule: **if it defines behavior, it's game code. If it prov
 | `audio.py` | Manifest-driven sound loading, round-robin channels, positional audio, music |
 | `input.py` | Action-based key bindings, decoupling game logic from specific key constants |
 | `tmx_loader.py` | TMX parsing into raw `LevelData` (tile grids + object spawn points, no entities) |
+| `ui.py` | `MenuRenderer` for GL text/quad rendering + `MenuState` for navigable menu screens |
 | `rendering/` | OpenGL 3.3 pipeline: texture arrays, instanced billboards, level mesh with AO, shaders |
 
 ### What the game defines
@@ -209,6 +211,43 @@ class PlayingState(GameState):
 app = App()
 app.push_state(PlayingState())
 app.run()
+```
+
+### Menu system
+
+`MenuState` + `MenuRenderer` provide keyboard-navigable menu screens rendered via OpenGL. The reference game uses three states:
+
+```
+MainMenuState ──[New Game]──> PlayingState ──[ESC]──> PauseMenuState
+                                   ^                       │
+                                   └───────[Resume]────────┘
+                                                           │
+                              MainMenuState <──[Main Menu]─┘
+```
+
+```python
+from wolf_engine.ui import MenuState
+
+class PauseMenu(MenuState):
+    def __init__(self, engine):
+        super().__init__('PAUSED', [
+            ('Resume', self.resume),
+            ('Quit', self.quit),
+        ])
+        self.engine = engine
+
+    def resume(self):
+        self.app.pop_state()
+
+    def quit(self):
+        self.app.is_running = False
+
+    def render(self):
+        self.engine.render()           # game scene behind
+        self.ui.begin()
+        self.ui.draw_overlay(alpha=0.6) # darken
+        self.render_menu()              # title + items
+        self.ui.end()
 ```
 
 ### Audio management

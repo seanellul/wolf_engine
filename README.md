@@ -86,7 +86,9 @@ python main.py
 
 | Key | Action |
 |---|---|
-| WASD | Move |
+| Enter / Space | Select menu item |
+| Arrow keys / W/S | Navigate menu |
+| WASD | Move (in game) |
 | Mouse | Look |
 | Left click | Shoot |
 | 1 / 2 / 3 | Switch weapon (knife / pistol / rifle) |
@@ -94,7 +96,7 @@ python main.py
 | F | Interact (open doors) |
 | Q / E | Move up / down |
 | Tab | Toggle mouse capture |
-| Esc | Quit |
+| Esc | Pause menu / Back |
 
 ### Level Editing
 

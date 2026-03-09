@@ -15,5 +15,6 @@ from wolf_engine.pathfinding import GridPathfinder
 from wolf_engine.audio import AudioManager
 from wolf_engine.input import InputManager
 from wolf_engine.tmx_loader import TMXLoader, LevelData, ObjectData
+from wolf_engine.ui import MenuRenderer, MenuState
 from wolf_engine.rendering.render_scene import RenderScene, RenderLayer
 from wolf_engine.rendering.shader_manager import ShaderManager
